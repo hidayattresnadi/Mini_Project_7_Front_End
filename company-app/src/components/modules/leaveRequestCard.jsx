@@ -33,7 +33,7 @@ const LeaveRequestDetailCard = ({ detailLeaveRequest }) => {
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
+                confirmButtonText: "Yes, Update it!"
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     successSwal("Request updated successfully!");
@@ -54,6 +54,7 @@ const LeaveRequestDetailCard = ({ detailLeaveRequest }) => {
     };
 
     useEffect(() => {
+        console.log(detailLeaveRequest)
         if (shouldNavigate) {
             navigate('/leaveRequests');
             setLoading(false); // Set loading to false when navigation occurs
@@ -97,19 +98,19 @@ const LeaveRequestDetailCard = ({ detailLeaveRequest }) => {
                     <h4 className="mb-3">Leave Request Details</h4>
                     <div className="row">
                         <div className="col-4">
-                            <MemberDetail label="Book Title" value={detailLeaveRequest.leaveType} />
+                            <MemberDetail label="Leave Type" value={detailLeaveRequest.leaveType} />
                         </div>
                         <div className="col-4">
-                            <MemberDetail label="Author" value={detailLeaveRequest.startDate} />
+                            <MemberDetail label="Start Date" value={detailLeaveRequest.startDate} />
                         </div>
                         <div className="col-4">
-                            <MemberDetail label="Publisher" value={detailLeaveRequest.endDate} />
+                            <MemberDetail label="End Date" value={detailLeaveRequest.endDate} />
                         </div>
                         <div className="col-4">
-                            <MemberDetail label="Book Title" value={detailLeaveRequest.totalDays} />
+                            <MemberDetail label="Total Days" value={detailLeaveRequest.totalDays} />
                         </div>
                         <div className="col-4">
-                            <MemberDetail label="Author" value={detailLeaveRequest.reason} />
+                            <MemberDetail label="Reason" value={detailLeaveRequest.reason} />
                         </div>
                     </div>
                 </Container>
@@ -138,7 +139,7 @@ const LeaveRequestDetailCard = ({ detailLeaveRequest }) => {
                         </tbody>
                     </table>
                 </Container>
-                {currentUser.roles.includes("HR Manager") || currentUser.roles.includes("Employee Supervisor") ?
+                {currentUser.roles.includes(detailLeaveRequest.requiredRole.name) ?
                     <Container>
                         <h4 className="mb-3">Add Comments and Update Status</h4>
                         <form>

@@ -11,7 +11,7 @@ import Input from '../elements/input';
 import TableLeaveRequests from '../modules/tableLeaveRequest';
 
 function LeaveRequestListsPage() {
-    const columns = ["Process Id", "Employee Name", "Start Date", "End Date", "Total Days", "Leave Type", "Reason", "Request Date", "Status", "Detail"]
+    const columns = ["Process Id", "Employee Name", "Start Date", "End Date", "Total Days", "Leave Type", "Reason", "Request Date","File Link","Status", "Detail"]
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [searchQuery, setSearchQuery] = useState('');
@@ -38,6 +38,7 @@ function LeaveRequestListsPage() {
                 pageSize: pageSize,
                 keyWord: searchQuery
             });
+            console.log(response.data)
             return response.data;
         } catch (error) {
             console.log(error)

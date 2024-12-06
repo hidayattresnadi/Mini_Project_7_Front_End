@@ -19,7 +19,6 @@ function ProjectFormPage({ setErrors, departments, editingProject, setEditingPro
             const listErrors = validateProject(project)
             setErrors(listErrors);
             if (Object.keys(listErrors).length === 0) {
-                console.log(project)
                 project.deptId = parseInt(project.deptId)
                 await ProjectService.create(project)
                 successSwal('Project Added successfully');

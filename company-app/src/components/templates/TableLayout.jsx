@@ -4,7 +4,7 @@ import Container from '../elements/container';
 function TableLayout({ title, children, buttonTitle, onClick }) {
     return (
         <Container className="d-flex flex-column align-items-center">
-            <Container style={{ width: "90%", maxWidth: "1500px" }}>
+            <Container >
                 <h1 className="text-center mb-4">{title}</h1>
 
                 <Container className="table-responsive">

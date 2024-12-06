@@ -12,7 +12,7 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
 
-    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB dalam bytes
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 2MB dalam bytes
     const ALLOWED_FILE_TYPES = [
         "application/pdf", // PDF
         "image/jpeg", // JPG/JPEG
@@ -36,10 +36,10 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
         leaveType: '',
         reason: '',
         totalDays: 0,
-        fileName:''
+        fileName: ''
     });
 
-    
+
     const handleFileSelect = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -65,10 +65,10 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
     };
 
     const handleUpload = async () => {
-        if (!selectedFile) {
-            toast.error('Please select a file first');
-            return;
-        }
+        // if (!selectedFile) {
+        //     toast.error('Please select a file first');
+        //     return;
+        // }
 
         setIsLoading(true);
         setUploadProgress(0);
@@ -117,12 +117,19 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const uploadSuccess = await handleUpload();
-        if (!uploadSuccess) {
-            return;
+        let updatedFormData = { ...formData };
+        if (selectedFile) {
+            const uploadSuccess = await handleUpload();
+            if (!uploadSuccess) {
+                return;
+            }
+            updatedFormData = {
+                ...updatedFormData,
+                fileName: uploadSuccess.data,
+            };
         }
-        setFormData({...formData, fileName: uploadSuccess})
-        const result = await addLeaveRequest(formData);
+        
+        const result = await addLeaveRequest(updatedFormData);
         if (Object.keys(result).length === 0) {
             setFormData({
                 employeeId: currentUser.user.employeeId,
@@ -131,7 +138,7 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
                 leaveType: '',
                 reason: '',
                 totalDays: 0,
-                fileName:''
+                fileName: ''
             });
         }
 
@@ -144,15 +151,17 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
 
             if (end >= start) {
                 const diffTime = end - start;
-                const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
+                const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24) + 1);
                 setFormData(prev => ({ ...prev, totalDays: diffDays }));
             }
         }
     }, [formData.startDate, formData.endDate]);
 
+    const today = new Date().toISOString().split("T")[0]; 
+
     return (
         <>
-        <ToastContainer
+            <ToastContainer
                 position="top-right"
                 autoClose={5000}
                 hideProgressBar={false}
@@ -182,12 +191,13 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
                 {/* Start Date */}
                 <div className="mb-3">
                     <label htmlFor="startDate" className="form-label fw-bold mb-2">Start Date</label>
-                    <InputField
+                    <input
                         type="date"
                         id="startDate"
                         value={formData.startDate}
                         onChange={handleInputChange}
                         className={`form-control ${errors?.startDate ? "is-invalid" : ""}`}
+                        min={today}
                     />
                     {errors?.startDate && (
                         <div className='text-danger mb-3'>{errors.startDate}</div>
@@ -197,12 +207,13 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
                 {/* End Date */}
                 <div className="mb-3">
                     <label htmlFor="endDate" className="form-label fw-bold mb-2">End Date</label>
-                    <InputField
+                    <input
                         type="date"
                         id="endDate"
                         value={formData.endDate}
                         onChange={handleInputChange}
                         className={`form-control ${errors?.endDate ? "is-invalid" : ""}`}
+                        min={formData.startDate || new Date().toISOString().split("T")[0]}
                     />
                     {errors?.endDate && (
                         <Container className='text-danger mb-3'>{errors.endDate}</Container>
@@ -258,42 +269,42 @@ const RequestLeaveForm = ({ addLeaveRequest, errors }) => {
                 </div>
 
                 <div className="col-md-12">
-                <div className="mb-3">
-                    <label htmlFor="fileInput" className="form-label">Choose File (PDF or Word, max 2MB)</label>
-                    <input
-                        id="fileInput"
-                        type="file"
-                        onChange={handleFileSelect}
-                        className="form-control"
-                        accept=".pdf,.doc,.docx"
-                    />
-                    {selectedFile && (
-                        <div className="mt-2 text-muted">
-                            Selected file: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                    <div className="mb-3">
+                        <label htmlFor="fileInput" className="form-label">Choose File (PDF or Word, max 2MB)</label>
+                        <input
+                            id="fileInput"
+                            type="file"
+                            onChange={handleFileSelect}
+                            className="form-control"
+                            accept=".pdf,.doc,.docx"
+                        />
+                        {selectedFile && (
+                            <div className="mt-2 text-muted">
+                                Selected file: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                            </div>
+                        )}
+                    </div>
+                    {uploadProgress > 0 && uploadProgress < 100 && (
+                        <div className="mb-3">
+                            <div className="progress">
+                                <div
+                                    className="progress-bar"
+                                    role="progressbar"
+                                    style={{ width: `${uploadProgress}%` }}
+                                    aria-valuenow={uploadProgress}
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                >
+                                    {uploadProgress}%
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
-                {uploadProgress > 0 && uploadProgress < 100 && (
-                    <div className="mb-3">
-                        <div className="progress">
-                            <div
-                                className="progress-bar"
-                                role="progressbar"
-                                style={{ width: `${uploadProgress}%` }}
-                                aria-valuenow={uploadProgress}
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                            >
-                                {uploadProgress}%
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
 
                 {/* Submit Button */}
                 <div className="d-grid mt-5">
-                <Button className="btn btn-primary btn-lg" type="submit" disabled={isLoading}>
+                    <Button className="btn btn-primary btn-lg" type="submit" disabled={isLoading}>
                         {isLoading ? "Uploading..." : "Submit Request"}
                     </Button>
                 </div>
